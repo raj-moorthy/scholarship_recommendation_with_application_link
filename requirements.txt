@@ -1,7 +1,5 @@
 streamlit
-tensorflow==2.15.0
-keras==2.15.0
-ml-dtypes==0.2.0
+tensorflow>=2.16.1
 pandas
 numpy
 scikit-learn

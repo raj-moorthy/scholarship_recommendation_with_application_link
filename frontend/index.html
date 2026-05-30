@@ -487,8 +487,9 @@
     </div>
 
     <script>
-        // Production Render API URL
-        const API_URL = "https://scholarship-recommendation-with.onrender.com";
+        // Production API URL (supports query parameter override e.g. ?api=https://xxxx.up.railway.app)
+        const urlParams = new URLSearchParams(window.location.search);
+        const API_URL = urlParams.get('api') || "https://scholarship-recommendation-with-application-link-production.up.railway.app";
 
         function showAlert(message, type) {
             const banner = document.getElementById('alert-banner');

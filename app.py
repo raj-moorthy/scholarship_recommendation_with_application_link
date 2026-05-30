@@ -265,25 +265,32 @@ if predict_btn:
                 gender_class = "badge-value-female"
                 gender_icon = "♀️"
             
-            # Render Premium Matching Result Layout
-            st.markdown(f"""
-                <div class="glass-card">
-                    <div style="font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; color: #a5b4fc; display:flex; gap:8px; align-items:center;">
-                        ✨ Matching Result Analysis
-                    </div>
-                    
-                    <div class="result-badge">
-                        <span class="badge-label">Inferred Gender:</span>
-                        <span class="{gender_class}">{gender_icon} {gender}</span>
-                    </div>
-                    
-                    <div class="scholarship-result-card">
-                        <div class="scholarship-title">🎯 Best Matched Program</div>
-                        <div class="scholarship-name">{scholarship_name}</div>
-                        {"<a class='apply-btn' href='" + website_link + "' target='_blank'>🔗 Apply Officially</a>" if website_link != "N/A" else ""}
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+            # Render Premium Native Streamlit Matching Result Layout
+            with st.container(border=True):
+                st.markdown("<h3 style='margin:0; font-size:1.2rem; color:#a5b4fc;'>✨ Matching Result Analysis</h3>", unsafe_allow_html=True)
+                
+                # Gender display row
+                col_g1, col_g2 = st.columns([1, 1])
+                with col_g1:
+                    st.markdown("<span style='color:#94a3b8; font-size:0.95rem;'>Inferred Gender:</span>", unsafe_allow_html=True)
+                with col_g2:
+                    if gender == "Male":
+                        st.markdown("<span style='color:#60a5fa; font-weight:bold; font-size:1rem;'>♂️ Male</span>", unsafe_allow_html=True)
+                    elif gender == "Female":
+                        st.markdown("<span style='color:#f472b6; font-weight:bold; font-size:1rem;'>♀️ Female</span>", unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<span style='color:#f8fafc; font-weight:bold; font-size:1rem;'>⚪ {gender}</span>", unsafe_allow_html=True)
+                
+                # Divider
+                st.markdown("<hr style='margin:15px 0; border:0; border-top:1px solid rgba(255,255,255,0.1);'>", unsafe_allow_html=True)
+                
+                # Scholarship program display card
+                st.markdown("<span style='color:#94a3b8; font-size:0.8rem; font-weight:bold; letter-spacing:1px; text-transform:uppercase;'>🎯 Best Matched Program</span>", unsafe_allow_html=True)
+                st.markdown(f"<h2 style='margin:10px 0 20px 0; font-size:1.5rem; font-weight:800; background:linear-gradient(to right, #818cf8, #c084fc, #f472b6); -webkit-background-clip:text; -webkit-text-fill-color:transparent;'>{scholarship_name}</h2>", unsafe_allow_html=True)
+                
+                # Native Link Button (100% bug-free and perfectly styled!)
+                if website_link != "N/A" and website_link:
+                    st.link_button("🔗 Apply Officially", website_link, use_container_width=True)
             
     else:
         st.error("⚠️ Please fill in both your Name and Profile Details to run the model.")

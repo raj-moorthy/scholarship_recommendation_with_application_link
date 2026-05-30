@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Scholarship AI Recommendation Platform</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-gradient: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 100%);
+            --glass-bg: rgba(15, 23, 42, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.12);
+            --primary-glow: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #d946ef;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Abstract glowing background spheres */
+        .blur-sphere {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.35;
+        }
+        .sphere-1 {
+            top: 10%;
+            left: 15%;
+            background: #4f46e5;
+        }
+        .sphere-2 {
+            bottom: 10%;
+            right: 15%;
+            background: #7c3aed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            z-index: 10;
+        }
+
+        /* Glassmorphic App Card */
+        .app-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        inset 0 1px 0 var(--glass-highlight);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-glow);
+        }
+
+        /* Settings Toggle Button */
+        .settings-toggle {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .settings-toggle:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.12);
+            transform: rotate(45deg);
+        }
+
+        /* Header design */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: var(--primary-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        /* Settings Panel styling */
+        .settings-panel {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: none;
+            animation: fadeInDown 0.3s ease-out;
+        }
+
+        .settings-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-panel p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0 0 15px 0;
+        }
+
+        /* Forms Elements */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        textarea {
+            padding-left: 44px;
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 
+                        inset 0 2px 4px rgba(0,0,0,0.15);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        /* Primary Button styling */
+        .btn-predict {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-glow);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        /* Results Display Card */
+        .results-container {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid var(--glass-border);
+            display: none;
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .results-header {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a5b4fc;
+        }
+
+        .gender-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .gender-badge span.value {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .gender-badge span.value.male {
+            color: #60a5fa;
+        }
+
+        .gender-badge span.value.female {
+            color: #f472b6;
+        }
+
+        .scholarship-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .scholarship-card h4 {
+            margin: 0 0 6px 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .scholarship-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin: 10px 0 20px 0;
+            background: linear-gradient(to right, #818cf8, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-apply {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #fff;
+            color: #0f172a;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            background: #f8fafc;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.25);
+        }
+
+        /* Premium Loader animation */
+        .loading-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px 0 10px 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(99, 102, 241, 0.15);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Footer styling */
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Alert notifications */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInDown 0.3s ease;
+        }
+        .alert-error {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.25);
+            color: #fda4af;
+        }
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #6ee7b7;
+        }
+
+        /* Responsive scale */
+        @media(max-width: 480px) {
+            .app-card {
+                padding: 25px 20px;
+                border-radius: 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="blur-sphere sphere-1"></div>
+    <div class="blur-sphere sphere-2"></div>
+
+    <div class="container">
+        <div class="app-card">
+            <!-- Settings toggle -->
+            <div class="settings-toggle" onclick="toggleSettings()" title="Configure Backend API URL">
+                <i class="fa-solid fa-cog"></i>
+            </div>
+
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                <h1>Scholarship AI Recommendation</h1>
+                <div class="subtitle">Enter your academic details to match with tailored Indian scholarships</div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div class="settings-panel" id="settings-panel">
+                <h3><i class="fa-solid fa-server"></i> API Settings</h3>
+                <p>Provide your live Render web service URL. This will be stored locally in your browser.</p>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link"></i>
+                        <input type="text" id="api-url-input" placeholder="https://your-api.onrender.com">
+                    </div>
+                </div>
+                <button class="btn-predict" onclick="saveSettings()" style="padding: 10px 15px; font-size: 0.85rem;">
+                    <i class="fa-solid fa-save"></i> Save Backend Configuration
+                </button>
+            </div>
+
+            <!-- Notification banner -->
+            <div class="alert alert-error" id="alert-banner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="alert-text"></span>
+            </div>
+
+            <!-- Main Input Form -->
+            <div id="form-container">
+                <div class="form-group">
+                    <label for="student-name">
+                        <i class="fa-solid fa-user-graduate"></i> Full Name
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="student-name" placeholder="Enter your full name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="student-desc">
+                        <i class="fa-solid fa-circle-info"></i> Academic Profile Details
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-pencil" style="top: 18px;"></i>
+                        <textarea id="student-desc" placeholder="Describe your details: academic level (e.g. 12th, B.Tech, PhD), family annual income, community/caste, marks, and state..."></textarea>
+                    </div>
+                </div>
+
+                <button class="btn-predict" onclick="processPrediction()">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Predict Matching Scholarship
+                </button>
+            </div>
+
+            <!-- Advanced Loader -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="spinner"></div>
+                <div class="loading-text">Analyzing profile with ML model...</div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-container" id="results-section">
+                <div class="results-header">
+                    <i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Matching Result Analysis
+                </div>
+
+                <div class="gender-badge">
+                    <span style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted);">Inferred Gender:</span>
+                    <span class="value" id="gender-result">-</span>
+                </div>
+
+                <div class="scholarship-card">
+                    <h4>🎯 Best Matched Program</h4>
+                    <div class="scholarship-name" id="scholarship-result">Scholarship Name</div>
+                    <a href="#" target="_blank" class="btn-apply" id="application-link">
+                        <i class="fa-solid fa-external-link"></i> Apply Officially
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by Deep Learning Classification Models &bull; Secure and Private Analysis
+        </div>
+    </div>
+
+    <script>
+        // Default Fallback URL (user will update via UI cog)
+        const DEFAULT_URL = "http://127.0.0.1:8000";
+
+        // On Load, read config or prompt
+        window.addEventListener('load', () => {
+            const savedUrl = localStorage.getItem('scholarship_api_url');
+            if (savedUrl) {
+                document.getElementById('api-url-input').value = savedUrl;
+            } else {
+                document.getElementById('api-url-input').value = DEFAULT_URL;
+                // Proactively show settings to prompt the user
+                toggleSettings();
+            }
+        });
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function saveSettings() {
+            let inputUrl = document.getElementById('api-url-input').value.trim();
+            if (!inputUrl) {
+                showAlert("Please enter a valid URL.", "error");
+                return;
+            }
+            // Strip trailing slash
+            if (inputUrl.endsWith('/')) {
+                inputUrl = inputUrl.slice(0, -1);
+            }
+            localStorage.setItem('scholarship_api_url', inputUrl);
+            showAlert("Backend URL successfully updated!", "success");
+            setTimeout(() => { toggleSettings(); }, 1200);
+        }
+
+        function showAlert(message, type) {
+            const banner = document.getElementById('alert-banner');
+            const textSpan = document.getElementById('alert-text');
+            banner.className = `alert alert-${type}`;
+            textSpan.innerText = message;
+            banner.style.display = 'flex';
+            
+            if (type === 'success') {
+                setTimeout(() => { banner.style.display = 'none'; }, 3000);
+            }
+        }
+
+        async function processPrediction() {
+            const name = document.getElementById('student-name').value.trim();
+            const description = document.getElementById('student-desc').value.trim();
+            const resultsSection = document.getElementById('results-section');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const formContainer = document.getElementById('form-container');
+            const alertBanner = document.getElementById('alert-banner');
+
+            alertBanner.style.display = 'none';
+
+            if (!name || !description) {
+                showAlert("Please enter both your name and profile details to match.", "error");
+                return;
+            }
+
+            // Get target API endpoint from localStorage or fallback
+            const apiBase = localStorage.getItem('scholarship_api_url') || DEFAULT_URL;
+            const apiEndpoint = `${apiBase}/predict`;
+
+            // Prepare loading state
+            formContainer.style.opacity = '0.3';
+            formContainer.style.pointerEvents = 'none';
+            loadingOverlay.style.display = 'flex';
+            resultsSection.style.display = 'none';
+
+            try {
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned error status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Load and populate results
+                    const genderRes = document.getElementById('gender-result');
+                    genderRes.innerText = result.predicted_gender;
+                    
+                    // Style gender text based on result
+                    genderRes.className = 'value';
+                    if (result.predicted_gender === 'Male') {
+                        genderRes.classList.add('male');
+                        genderRes.innerHTML = `<i class="fa-solid fa-mars"></i> Male`;
+                    } else if (result.predicted_gender === 'Female') {
+                        genderRes.classList.add('female');
+                        genderRes.innerHTML = `<i class="fa-solid fa-venus"></i> Female`;
+                    } else {
+                        genderRes.innerHTML = `<i class="fa-solid fa-genderless"></i> Gender Neutral`;
+                    }
+
+                    document.getElementById('scholarship-result').innerText = result.predicted_scholarship;
+                    
+                    const linkBtn = document.getElementById('application-link');
+                    if (result.official_website && result.official_website !== 'N/A') {
+                        linkBtn.href = result.official_website;
+                        linkBtn.style.display = 'inline-flex';
+                    } else {
+                        linkBtn.style.display = 'none';
+                    }
+
+                    // Render results card
+                    resultsSection.style.display = 'block';
+                } else {
+                    showAlert(`Prediction failed: ${result.error || 'Unknown error'}`, "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert(`Could not connect to backend. Please check that your Render web service is running and CORS is enabled. Details: ${err.message}`, "error");
+            } finally {
+                loadingOverlay.style.display = 'none';
+                formContainer.style.opacity = '1';
+                formContainer.style.pointerEvents = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>

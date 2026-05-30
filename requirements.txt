@@ -1,6 +1,13 @@
 streamlit
+tensorflow==2.15.0
+keras==2.15.0
+ml-dtypes==0.2.0
 pandas
-tensorflow
-gender-guesser
-scikit-learn
 numpy
+scikit-learn
+gender-guesser
+pickle-mixin
+pytest
+flask
+flask-cors
+gunicorn

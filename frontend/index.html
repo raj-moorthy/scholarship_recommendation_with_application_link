@@ -95,29 +95,6 @@
             background: var(--primary-glow);
         }
 
-        /* Settings Toggle Button */
-        .settings-toggle {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            cursor: pointer;
-        }
-
-        .settings-toggle:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.12);
-            transform: rotate(45deg);
-        }
-
         /* Header design */
         .header {
             text-align: center;
@@ -148,32 +125,6 @@
             font-size: 0.95rem;
             margin-top: 8px;
             font-weight: 400;
-        }
-
-        /* Settings Panel styling */
-        .settings-panel {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 25px;
-            display: none;
-            animation: fadeInDown 0.3s ease-out;
-        }
-
-        .settings-panel h3 {
-            margin: 0 0 10px 0;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .settings-panel p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin: 0 0 15px 0;
         }
 
         /* Forms Elements */
@@ -463,31 +414,11 @@
 
     <div class="container">
         <div class="app-card">
-            <!-- Settings toggle -->
-            <div class="settings-toggle" onclick="toggleSettings()" title="Configure Backend API URL">
-                <i class="fa-solid fa-cog"></i>
-            </div>
-
             <!-- Header -->
             <div class="header">
                 <div class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></div>
                 <h1>Scholarship AI Recommendation</h1>
                 <div class="subtitle">Enter your academic details to match with tailored Indian scholarships</div>
-            </div>
-
-            <!-- Settings Panel -->
-            <div class="settings-panel" id="settings-panel">
-                <h3><i class="fa-solid fa-server"></i> API Settings</h3>
-                <p>Provide your live Render web service URL. This will be stored locally in your browser.</p>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-link"></i>
-                        <input type="text" id="api-url-input" placeholder="https://your-api.onrender.com">
-                    </div>
-                </div>
-                <button class="btn-predict" onclick="saveSettings()" style="padding: 10px 15px; font-size: 0.85rem;">
-                    <i class="fa-solid fa-save"></i> Save Backend Configuration
-                </button>
             </div>
 
             <!-- Notification banner -->
@@ -556,40 +487,8 @@
     </div>
 
     <script>
-        // Default Fallback URL (user will update via UI cog)
-        const DEFAULT_URL = "http://127.0.0.1:8000";
-
-        // On Load, read config or prompt
-        window.addEventListener('load', () => {
-            const savedUrl = localStorage.getItem('scholarship_api_url');
-            if (savedUrl) {
-                document.getElementById('api-url-input').value = savedUrl;
-            } else {
-                document.getElementById('api-url-input').value = DEFAULT_URL;
-                // Proactively show settings to prompt the user
-                toggleSettings();
-            }
-        });
-
-        function toggleSettings() {
-            const panel = document.getElementById('settings-panel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function saveSettings() {
-            let inputUrl = document.getElementById('api-url-input').value.trim();
-            if (!inputUrl) {
-                showAlert("Please enter a valid URL.", "error");
-                return;
-            }
-            // Strip trailing slash
-            if (inputUrl.endsWith('/')) {
-                inputUrl = inputUrl.slice(0, -1);
-            }
-            localStorage.setItem('scholarship_api_url', inputUrl);
-            showAlert("Backend URL successfully updated!", "success");
-            setTimeout(() => { toggleSettings(); }, 1200);
-        }
+        // Production Render API URL
+        const API_URL = "https://scholarship-recommendation-with-application-link.onrender.com";
 
         function showAlert(message, type) {
             const banner = document.getElementById('alert-banner');
@@ -618,9 +517,7 @@
                 return;
             }
 
-            // Get target API endpoint from localStorage or fallback
-            const apiBase = localStorage.getItem('scholarship_api_url') || DEFAULT_URL;
-            const apiEndpoint = `${apiBase}/predict`;
+            const apiEndpoint = `${API_URL}/predict`;
 
             // Prepare loading state
             formContainer.style.opacity = '0.3';
@@ -675,7 +572,7 @@
                 }
             } catch (err) {
                 console.error(err);
-                showAlert(`Could not connect to backend. Please check that your Render web service is running and CORS is enabled. Details: ${err.message}`, "error");
+                showAlert(`Could not connect to prediction engine. Please check back shortly as the machine learning models on Render wake up.`, "error");
             } finally {
                 loadingOverlay.style.display = 'none';
                 formContainer.style.opacity = '1';
